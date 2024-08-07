@@ -10,7 +10,7 @@ read_config() {
       /^ *Host /          {device=$2}
       /^ *HostName /      {hostname=$2}
       /^ *User /          {user=$2}
-      /^ *# Mac Address/  {mac=$2; gsub(/[<>]/,"",mac); print device, user, hostname, mac}
+      /^ *# Mac Address/  {mac=$4; gsub(/[<>]/,"",mac); print device, user, hostname, mac}
       ' ~/.ssh/config )
   }
 
@@ -43,17 +43,30 @@ mini_man(){
   echo -e "NAME\n\tWakeAndConnect - Use Wake-on-LAN to power on machines and establish secure connections via SSH."
   echo -e "SYNOPSIS\n\twakeandconnect [options] [device]"
   echo -e "DESCRIPTION\n\tWakeAndConnect is a shell script that utilizes Wake-On-Lan and SSH\n\tto automate the process of turning on and connecting to a remote computer."
-  echo -e "OPTIONS\n\t-h, --help\tDisplay the mini manual page"
+  echo -e "OPTIONS\n\t-h, --help\tDisplay the mini manual page\n\t-c, --config\tDisplay all devices and device information"
+}
+
+show_config(){
+  for device in "${!computers[@]}"; do
+    read -r user hostname mac <<< "${computers[$device]}"
+    echo -e "Device: $device\n\tUser: $user\n\tHostname: $hostname\n\tMAC: $mac"
+  done
 }
 
 main(){
-  options=$(getopt -o h --long help -- "$@")
+  read_config
+
+  options=$(getopt -o hc --long help,config -- "$@")
   eval set -- "$options"
 
   while true ; do
     case "$1" in 
       -h|--help)
         mini_man
+        exit 0
+        ;;
+      -c|--config)
+        show_config
         exit 0
         ;;
       --)
@@ -68,8 +81,9 @@ main(){
     shift
   done
 
-  read_config
   choose_computer
   wake_and_connect
 }
+
 main "$@"
+
