@@ -10,5 +10,9 @@ DESCRIPTION
 OPTIONS
 	-h, --help	Display the mini manual page
 	-c, --config	Display all devices and device information
-
-
+ARGUMENTS
+	device	 The name of the device to wake up and connect to. Same as your ssh shortcut.
+EXAMPLES
+	wakeandconnect -h
+	wakeandconnect -c
+	wakeandconnect device

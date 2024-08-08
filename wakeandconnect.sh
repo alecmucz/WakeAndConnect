@@ -27,16 +27,16 @@ choose_computer() {
 }
 
 wake_and_connect(){
-  local machine=(${computers[$device]})
+  local machine=(${computers[$1]})
   local mac=${machine[2]}
 
-  echo "Waking up $device ..."
-  wakeonlan "$mac"
-  echo "Waiting for $device to wake up..."
+  echo "Waking up $1 ..."
+  wakeonlan $mac
+  echo "Waiting for $1 to wake up..."
   sleep 30
 
-  echo "Connecting to $device"
-  ssh $device
+  echo "Connecting to $1"
+  ssh $1
 }
 
 mini_man(){
@@ -44,6 +44,8 @@ mini_man(){
   echo -e "SYNOPSIS\n\twakeandconnect [options] [device]"
   echo -e "DESCRIPTION\n\tWakeAndConnect is a shell script that utilizes Wake-On-Lan and SSH\n\tto automate the process of turning on and connecting to a remote computer."
   echo -e "OPTIONS\n\t-h, --help\tDisplay the mini manual page\n\t-c, --config\tDisplay all devices and device information"
+  echo -e "ARGUMENTS\n\tdevice\t The name of the device to wake up and connect to. Same as your ssh shortcut."
+  echo -e "EXAMPLES\n\twakeandconnect -h\n\twakeandconnect -c\n\twakeandconnect device"
 }
 
 show_config(){
@@ -81,8 +83,13 @@ main(){
     shift
   done
 
-  choose_computer
-  wake_and_connect
+  if [ "$1" ]; then
+    device="$1"
+    wake_and_connect "$device"
+  else
+    choose_computer
+    wake_and_connect "$device"
+  fi
 }
 
 main "$@"
